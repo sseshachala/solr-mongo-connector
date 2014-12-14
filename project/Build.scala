@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.github.retronym.SbtOneJar
 import sbt._
 import Keys._
 import sbtassembly.Plugin._
@@ -33,6 +34,7 @@ object ApplicationBuild extends Build {
   val scalaStyleSettings = org.scalastyle.sbt.ScalastylePlugin.Settings
 
   val buildSettings = Defaults.defaultSettings ++ assemblySettings ++ scalaStyleSettings ++ Seq (
+    exportJars := true,
     organization := "SelfishInc",
     Keys.version := version,
     scalaVersion := Versions.ScalaVersion,
@@ -79,7 +81,7 @@ object ApplicationBuild extends Build {
   val main = Project(
     appName,
     file("."),
-    settings = buildSettings
+    settings = buildSettings ++ SbtOneJar.oneJarSettings
   )
 }
 
