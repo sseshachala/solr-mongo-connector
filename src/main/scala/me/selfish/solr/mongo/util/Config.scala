@@ -27,6 +27,9 @@ object Config extends Logging {
   val maxEntriesForProcess = conf.getInt("connector.max-entries-for-process")
   val configFileUrl = conf.getString("connector.timestamps.file")
   val mongoUri = conf.getStringList("connector.mongo.uri")
+  val mongoUser = conf.getString("connector.mongo.user")
+  val mongoDB = conf.getString("connector.mongo.db")
+  val mongoPassword = conf.getString("connector.mongo.password")
   val solrUri = conf.getString("connector.solr.uri")
   val namespace = conf.getStringList("connector.namespace").toList
   val bulkMaxUpsert = conf.getInt("connector.bulk.max_upsert")
