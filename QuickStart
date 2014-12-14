@@ -1,0 +1,125 @@
+To build solr-mongo-connector from the source
+1. Download and install the Scala
+wget http://downloads.typesafe.com/scala/2.11.4/scala-2.11.4.deb
+
+
+dpkg -i scala-2.11.4.deb
+
+2. Install sbt (few ways, including building from the source)
+
+
+wget http://apt.typesafe.com/repo-deb-build-0002.deb
+
+
+dpkg -i repo-deb-build-0002.deb <-- add repo with sbt package
+
+
+aptitude update && aptitude install sbt
+
+3. Clone solr-mongo-connector
+
+git clone ...
+
+4. Build
+
+
+mkdir -p /root/.sbt/.lib/0.12.4
+
+
+wget http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.12.4/sbt-launch.jar -P /root/.sbt/.lib/0.12.4/
+
+cd solr-mongo-connector/
+
+sbt <-- to launch the builder
+
+5. Inside of sbt shell:
+
+> compile
+
+[warn] Credentials file /root/.ivy2/.credentials does not exist
+
+[info] Compiling 2 Scala sources to /root/solr-mongo-connector/target/scala-2.10/classes...
+
+[info] Compiling 4 Scala sources to /root/solr-mongo-connector/target/scala-2.10/classes...
+
+[success] Total time: 22 s, completed Dec 14, 2014 12:06:03 AM
+
+> one-jar
+
+[warn] Credentials file /root/.ivy2/.credentials does not exist
+
+[info] Packaging /root/solr-mongo-connector/target/scala-2.10/scala-mongo-connector_2.10-1.0-SNAPSHOT.jar ...
+
+[info] Done packaging.
+
+[info] Packaging /root/solr-mongo-connector/target/scala-2.10/scala-mongo-connector_2.10-1.0-SNAPSHOT-one-jar.jar ...
+
+[info] Done packaging.
+
+[success] Total time: 1 s, completed Dec 14, 2014 12:06:21 AM
+
+> exit
+
+6. copy /root/solr-mongo-connector/target/scala-2.10/scala-mongo-connector_2.10-1.0-SNAPSHOT-one-jar.jar to SOLR server as well as application.xml and logback.xml
+
+
+
+
+
+On SOLR server
+
+Preferable to use tmux and start everything in separated windows
+
+1. Update the schema.xml in /opt/solr-4.10.1/example/solr/collection1/conf
+
+2. Start the SOLR
+
+cd /opt/solr-4.10.1/example; java -jar start.jar >/var/log/solr.log &
+
+3. Wait until SOLR starts and start the solr-mongo-connector in directory when it's located (for ex. /opt/solr-mongo-connector)
+
+
+java -Dconfig.file=application.conf -Dlogback.configurationFile=logback.xml -jar scala-mongo-connector_2.10-1.0-SNAPSHOT-one-jar.jar >/var/log/solr-mongo-connect.log &
+
+To reindex DB
+
+1. Stop solr-mongo-connector
+
+2. Delete all data in SOLR
+
+
+curl http://localhost:8983/solr/update --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
+
+
+curl http://localhost:8983/solr/update --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
+
+
+
+To change the schema
+
+1. Stop solr-mongo-connector
+
+2. Delete all data in SOLR
+
+
+curl http://localhost:8983/solr/update --data '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'
+
+
+
+curl http://localhost:8983/solr/update --data '<commit/>' -H 'Content-type:text/xml; charset=utf-8'
+
+3. Stop SOLR process
+
+4. Delete managed-schema
+
+rm -f /opt/solr-4.10.1/example/solr/collection1/conf/managed-schema
+
+5. Update schema.xml and copy it to /opt/solr-4.10.1/example/solr/collection1/conf/
+
+6. Start SOLR
+
+cd /opt/solr-4.10.1/example; java -jar start.jar >/var/log/solr.log &
+
+7 Start solr-mongo-connector ( in /opt/solr-mongo-connector)
+
+java -Dconfig.file=application.conf -Dlogback.configurationFile=logback.xml -jar scala-mongo-connector_2.10-1.0-SNAPSHOT-one-jar.jar >/var/log/solr-mongo-connect.log &
