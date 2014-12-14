@@ -20,7 +20,6 @@ import scala.collection.JavaConversions._
 import com.mongodb._
 import com.typesafe.scalalogging.slf4j.Logging
 
-
 object MongoHelper extends Logging {
   val IdKey = "_id"
   val DropDatabaseCommand = "dropDatabase"
@@ -31,11 +30,12 @@ object MongoHelper extends Logging {
     //docs says that primary is default, but...
     val options = MongoClientOptions.builder().readPreference(ReadPreference.primary()).build()
 
+    val credential = MongoCredential.createMongoCRCredential(Config.mongoUser, Config.mongoDB, Config.mongoPassword.toCharArray())
     val servers = Config.mongoUri.map(addr => {
       val (host, port) = getHostPort(addr)
       new ServerAddress(host, port)
     })
-    new MongoClient(servers.toList, options)
+    new MongoClient(servers.toList, List(credential))
   }
 
 
